@@ -107,7 +107,7 @@ P is the probability of a win. B is the net odds received on a win."
 
 (defun kelly-read-p ()
   "Read the `p' parameter of the Kelly criterion."
-  (kelly-read-probability 'win))
+  (kelly-read-probability 'win-probability))
 
 (defun kelly-read-b ()
   "Read the `b' parameter of the Kelly criterion."
@@ -115,37 +115,48 @@ P is the probability of a win. B is the net odds received on a win."
     ('odds
      (kelly-read-odds))
     ('probability
-     (let ((prob (kelly-read-probability 'payout)))
+     (let ((prob (kelly-read-probability 'betting-odds)))
        (/ prob (- 1 prob))))
     (_ (user-error "Invalid `kelly-b-parameter-format': must be `odds' or `probability'"))))
 
 ;;;;; Read numbers
 
 (defun kelly-read-odds ()
-  "Prompt the user for net odds (a positive number).
+  "Prompt the user for odds, and return it.
 If the input is not positive, keep prompting until it is."
-  (let ((value (read-number "Betting odds: ")))
-    (while (not (> value 0))
-      (setq value (read-number "Please enter a positive number: ")))
-    value))
+  (let ((odds (kelly-read-number 'betting-odds)))
+    (kelly-validate-odds odds)
+    odds))
+
+(defun kelly-validate-odds (odds)
+  "Ensure that ODDS is a positive number."
+  (while (not (> odds 0))
+    (setq odds (read-number "Please enter a positive number: "))))
 
 (defun kelly-read-probability (type)
-  "Prompt the user for a probability between 0 and 1.
-TYPE is the type of probability to be prompted: either `win' or `payout'. If the
-input is not within the valid range, keep prompting until it is."
-  (let ((value (read-number (kelly-format-probability-prompt type))))
-    (while (or (< value 0) (> value 1))
-      (setq value (read-number "Please enter a number between 0 and 1: ")))
-    value))
+  "Prompt the user for a probability, and return it.
+If the input is not within the valid range, keep prompting until is it.
 
-(defun kelly-format-probability-prompt (type)
+TYPE is the type of probability to be prompted: either `win-probability' or
+`betting-odds'."
+  (let ((probability (kelly-read-number type)))
+    (kelly-validate-probability probability)
+    probability))
+
+(defun kelly-validate-probability (probability)
+  "Ensure that PROBABILITY is a number between 0 and 1."
+  (while (or (< probability 0) (> probability 1))
+    (setq probability (read-number "Please enter a number between 0 and 1: "))))
+
+(defun kelly-read-number (type)
   "Return a string to prompt the user for a probability.
-TYPE is the type of probability to be prompted: either `win' or `payout'."
-  (pcase type
-    ('win "Estimated win probability: ")
-    ;; TODO; improve message (should be equivalent to ‘betting odds’, but for probabilities)
-    ('payout  "Payout probability: " )
-    (_ (user-error "Invalid probability type: must be `win' or `payout'"))))
+TYPE is the type of probability to be prompted: either `win-probability' or
+`betting-odds'."
+  (let ((prompt (pcase type
+		  ('win-probability "Win probability: ")
+		  ('betting-odds  "Betting odds: ")
+		  (_ (user-error "Invalid probability type: must be `win-probability' or `betting-odds'")))))
+    (read-number prompt)))
 
 ;;;;; Misc
 
