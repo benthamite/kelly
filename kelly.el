@@ -141,7 +141,7 @@ TYPE is the type of probability to be prompted: either `win' or `payout'."
 (defun kelly-get-or-set-bankroll ()
   "Return the value of `kelly-bankroll', or prompt the user to set its value."
   (or kelly-bankroll
-      (setq kelly-bankroll (read-number "Bankroll (will be saved to `kelly-bankroll'): "))))
+      (setq kelly-bankroll (read-number "Bankroll: "))))
 
 (provide 'kelly)
 ;;; kelly.el ends here
