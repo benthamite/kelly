@@ -88,9 +88,13 @@ KELLY is the Kelly criterion."
 (defun kelly-format-expected-profit (p b)
   "Return a string with the expected net profit of a bet with parameters P and B.
 P is the probability of a win. B is the net odds received on a win."
-  (let* ((expected (* p (- b 1)))
-	 (roi (* expected 100)))
-    (format "Expected profit: %f (%f%%)." (* expected (kelly-get-or-set-bankroll)) roi)))
+  (let* ((expected (- (* p b) (- 1 p)))
+	 (roi (* expected 100))
+	 (kelly (kelly-calculate p b)))
+    (format "Expected net profit: %s%f (%f%% return on investment)."
+	    kelly-bankroll-currency
+	    (* expected kelly (kelly-get-or-set-bankroll))
+	    roi)))
 
 ;;;;; Read parameters
 
