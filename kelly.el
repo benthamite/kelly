@@ -83,7 +83,7 @@ and then scaled by `kelly-fraction'."
 (defun kelly-format-wager-amount (kelly)
   "Return a string with the amount to wager.
 KELLY is the Kelly criterion."
-  (format "Amount to wager (%f%%): %f." (* kelly 100) (* kelly (kelly-get-or-set-bankroll))))
+  (format "Amount to wager: %f (%f%%)." (* kelly (kelly-get-or-set-bankroll)) (* kelly 100)))
 
 (defun kelly-format-expected-profit (p b)
   "Return a string with the expected net profit of a bet with parameters P and B.
