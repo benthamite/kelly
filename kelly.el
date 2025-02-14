@@ -34,10 +34,9 @@
   :group 'applications)
 
 (defcustom kelly-b-parameter-type 'odds
-  "Specifies how the b parameter is entered.
-If set to `odds', the user will be prompted to enter net odds. If set to
-`probability', the user will be prompted to enter a payout probability, which
-will be converted to odds."
+  "Specifies how the `b' parameter is entered.
+If set to `odds', prompt the user to enter net odds (e.g. \"3\"). If set to
+`probability', prompt the user to enter a payout probability (e.g. \"0.75\")."
   :type '(choice (const :tag "Odds" odds)
 		 (const :tag "Probability" probability))
   :group 'kelly)
