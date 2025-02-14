@@ -88,21 +88,20 @@ and then scaled by `kelly-fraction'."
 (defun kelly-format-wager-amount (kelly)
   "Return a string with the amount to wager.
 KELLY is the Kelly criterion."
-  (format "Amount to wager: %s%f (%f%% of bankroll)."
-	  kelly-bankroll-currency
-	  (* kelly (kelly-get-or-set-bankroll))
-	  (* kelly 100)))
+  (let ((wager-amount (* kelly (kelly-get-or-set-bankroll)))
+	(percent-of-bankroll (* kelly 100)))
+    (format "Amount to wager: %s%f (%f%% of bankroll)."
+	    kelly-bankroll-currency wager-amount percent-of-bankroll)))
 
 (defun kelly-format-expected-profit (p b)
   "Return a string with the expected net profit of a bet with parameters P and B.
 P is the probability of a win. B is the net odds received on a win."
-  (let* ((expected (- (* p b) (- 1 p)))
-	 (roi (* expected 100))
-	 (kelly (kelly-calculate p b)))
+  (let* ((kelly (kelly-calculate p b))
+	 (expectation (kelly-get-expectation p b))
+	 (expected-profit (* kelly expectation (kelly-get-or-set-bankroll)))
+	 (return-on-investment (* expectation 100)))
     (format "Expected net profit: %s%f (%f%% return on investment)."
-	    kelly-bankroll-currency
-	    (* expected kelly (kelly-get-or-set-bankroll))
-	    roi)))
+	    kelly-bankroll-currency expected-profit return-on-investment)))
 
 ;;;;; Read parameters
 
