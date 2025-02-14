@@ -53,6 +53,11 @@ If set to a value less than 1, the recommended wager is scaled accordingly."
   :type 'number
   :group 'kelly)
 
+(defcustom kelly-bankroll-currency "$"
+  "The bankroll currency symbol."
+  :type 'string
+  :group 'kelly)
+
 ;;;; Functions
 
 ;;;###autoload
@@ -83,7 +88,10 @@ and then scaled by `kelly-fraction'."
 (defun kelly-format-wager-amount (kelly)
   "Return a string with the amount to wager.
 KELLY is the Kelly criterion."
-  (format "Amount to wager: %f (%f%%)." (* kelly (kelly-get-or-set-bankroll)) (* kelly 100)))
+  (format "Amount to wager: %s%f (%f%% of bankroll)."
+	  kelly-bankroll-currency
+	  (* kelly (kelly-get-or-set-bankroll))
+	  (* kelly 100)))
 
 (defun kelly-format-expected-profit (p b)
   "Return a string with the expected net profit of a bet with parameters P and B.
