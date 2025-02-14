@@ -33,8 +33,8 @@
   "Settings for calculating the Kelly criterion."
   :group 'applications)
 
-(defcustom kelly-b-parameter-type 'odds
-  "Specifies how the `b' parameter is entered.
+(defcustom kelly-b-parameter-format 'odds
+  "Specifies the format of the `b' parameter.
 If set to `odds', prompt the user to enter net odds (e.g. \"3\"). If set to
 `probability', prompt the user to enter a payout probability (e.g. \"0.75\")."
   :type '(choice (const :tag "Odds" odds)
@@ -111,13 +111,13 @@ P is the probability of a win. B is the net odds received on a win."
 
 (defun kelly-read-b ()
   "Read the `b' parameter of the Kelly criterion."
-  (pcase kelly-b-parameter-type
+  (pcase kelly-b-parameter-format
     ('odds
      (kelly-read-odds))
     ('probability
      (let ((prob (kelly-read-probability 'payout)))
        (/ prob (- 1 prob))))
-    (_ (user-error "Invalid `kelly-b-parameter-type': must be `odds' or `probability'"))))
+    (_ (user-error "Invalid `kelly-b-parameter-format': must be `odds' or `probability'"))))
 
 ;;;;; Read numbers
 
