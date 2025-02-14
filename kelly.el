@@ -88,7 +88,7 @@ and then scaled by `kelly-fraction'."
 (defun kelly-format-wager-amount (kelly)
   "Return a string with the amount to wager.
 KELLY is the Kelly criterion."
-  (let ((wager-amount (* kelly (kelly-get-or-set-bankroll)))
+  (let ((wager-amount (* kelly (kelly-get-bankroll)))
 	(percent-of-bankroll (* kelly 100)))
     (format "Amount to wager: %s%f (%f%% of bankroll)."
 	    kelly-bankroll-currency wager-amount percent-of-bankroll)))
@@ -98,7 +98,7 @@ KELLY is the Kelly criterion."
 P is the probability of a win. B is the net odds received on a win."
   (let* ((kelly (kelly-calculate p b))
 	 (expectation (kelly-get-expectation p b))
-	 (expected-profit (* kelly expectation (kelly-get-or-set-bankroll)))
+	 (expected-profit (* kelly expectation (kelly-get-bankroll)))
 	 (return-on-investment (* expectation 100)))
     (format "Expected net profit: %s%f (%f%% return on investment)."
 	    kelly-bankroll-currency expected-profit return-on-investment)))
@@ -153,8 +153,10 @@ TYPE is the type of probability to be prompted: either `win' or `payout'."
   "Return the expectation based on parameters P and B."
   (- (* p b) (- 1 p)))
 
-(defun kelly-get-or-set-bankroll ()
-  "Return the value of `kelly-bankroll', or prompt the user to set its value."
+(defun kelly-get-bankroll ()
+  "Return the value of `kelly-bankroll'.
+If `kelly-bankroll' is nil, prompt the user to set its value before returning
+it."
   (or kelly-bankroll
       (setq kelly-bankroll (read-number (format "Bankroll: %s" kelly-bankroll-currency)))))
 
