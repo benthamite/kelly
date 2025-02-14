@@ -147,7 +147,11 @@ TYPE is the type of probability to be prompted: either `win' or `payout'."
     ('payout  "Payout probability: " )
     (_ (user-error "Invalid probability type: must be `win' or `payout'"))))
 
-;;;;; Bankroll
+;;;;; Misc
+
+(defun kelly-get-expectation (p b)
+  "Return the expectation based on parameters P and B."
+  (- (* p b) (- 1 p)))
 
 (defun kelly-get-or-set-bankroll ()
   "Return the value of `kelly-bankroll', or prompt the user to set its value."
