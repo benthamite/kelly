@@ -122,28 +122,19 @@ P is the probability of a win. B is the net odds received on a win."
 ;;;;; Read numbers
 
 (defun kelly-read-odds ()
-  "Prompt the user for odds, and return it."
+  "Prompt the user for positive betting odds, and return the valid number."
   (let ((odds (kelly-read-number 'betting-odds)))
-    (kelly-validate-odds odds)
+    (while (not (> odds 0))
+      (setq odds (read-number "Please enter a positive number for the odds: ")))
     odds))
 
-(defun kelly-validate-odds (odds)
-  "Ensure that ODDS is a positive number."
-  (while (not (> odds 0))
-    (setq odds (read-number "Please enter a positive number: "))))
-
-(defun kelly-read-probability (type)
-  "Prompt the user for a probability, and return it.
-TYPE is the type of probability to be prompted: either `win-probability' or
-`betting-odds'."
-  (let ((probability (kelly-read-number type)))
-    (kelly-validate-probability probability)
-    probability))
-
-(defun kelly-validate-probability (probability)
-  "Ensure that PROBABILITY is a number between 0 and 1."
-  (while (or (< probability 0) (> probability 1))
-    (setq probability (read-number "Please enter a number between 0 and 1: "))))
+(defun kelly-read-probability (label)
+  "Prompt the user for a probability (a number between 0 and 1) using LABEL.
+Return a valid probability number."
+  (let ((prob (kelly-read-number label)))
+    (while (or (< prob 0) (> prob 1))
+      (setq prob (read-number "Please enter a number between 0 and 1: ")))
+    prob))
 
 (defun kelly-read-number (type)
   "Return a string to prompt the user for a probability.
