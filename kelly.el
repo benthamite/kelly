@@ -68,8 +68,8 @@ If set to a value less than 1, the recommended wager is scaled accordingly."
 	 (b (kelly-read-b))
 	 (kelly (kelly-calculate p b)))
     (if (< kelly 0)
-	(message "Kelly fraction is negative (%f)." kelly)
       (message "%s %s" (kelly-format-wager-amount kelly) (kelly-format-expected-profit p b)))))
+        (message "Kelly fraction is negative (%f). No wager is recommended." kelly)
 
 (defun kelly-calculate (p b)
   "Calculate the Kelly criterion for a bet with parameters P and B.
