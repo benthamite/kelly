@@ -149,7 +149,12 @@ TYPE is the type of probability to be prompted: either `win-probability' or
 ;;;;; Misc
 
 (defun kelly-get-expectation (p b)
-  "Return the expectation based on parameters P and B."
+  "Compute the expected profit multiplier for a wager.
+Given a win probability P and net odds B, return:
+
+    E = p × b – (1 – p)
+
+which represents the net profit per unit wagered."
   (- (* p b) (- 1 p)))
 
 (defun kelly-get-bankroll ()
