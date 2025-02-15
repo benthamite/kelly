@@ -162,7 +162,15 @@ which represents the net profit per unit wagered."
 If `kelly-bankroll' is nil, prompt the user to set its value before returning
 it."
   (or kelly-bankroll
-      (setq kelly-bankroll (read-number (format "Bankroll: %s" kelly-bankroll-currency)))))
+      (setq kelly-bankroll (kelly-read-bankroll))))
+
+(defun kelly-read-bankroll ()
+  "Prompt the user for a positive bankroll amount and return it.
+Does not modify any global variable."
+  (let ((amount (read-number (format "Bankroll (%s): " kelly-bankroll-currency))))
+    (while (<= amount 0)
+      (setq amount (read-number (format "Please enter a positive bankroll amount (%s): " kelly-bankroll-currency))))
+    amount))
 
 (provide 'kelly)
 ;;; kelly.el ends here
