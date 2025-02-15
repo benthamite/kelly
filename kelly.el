@@ -65,11 +65,14 @@ If set to a value less than 1, the recommended wager is scaled accordingly."
   "Display the Kelly criterion for a bet with user-specified parameters."
   (interactive)
   (let* ((p (kelly-read-p))
-	 (b (kelly-read-b))
-	 (kelly (kelly-calculate p b)))
+         (b (kelly-read-b))
+         (kelly (kelly-calculate p b))
+         (bankroll (kelly-get-bankroll)))
     (if (< kelly 0)
-      (message "%s %s" (kelly-format-wager-amount kelly) (kelly-format-expected-profit p b)))))
         (message "Kelly fraction is negative (%f). No wager is recommended." kelly)
+      (message "%s %s"
+	       (kelly-format-wager-amount kelly bankroll)
+	       (kelly-format-expected-profit p b kelly bankroll)))))
 
 (defun kelly-calculate (p b)
   "Calculate the Kelly criterion for a bet with parameters P and B.
@@ -85,21 +88,23 @@ and then scaled by `kelly-fraction'."
 
 ;;;;; Format strings
 
-(defun kelly-format-wager-amount (kelly)
+(defun kelly-format-wager-amount (kelly bankroll)
   "Return a string with the amount to wager.
-KELLY is the Kelly criterion."
-  (let ((wager-amount (* kelly (kelly-get-bankroll)))
+KELLY is the Kelly criterion. BANKROLL is the amount of capital you are willing
+to risk."
+  (let ((wager-amount (kelly-get-wager-amount kelly bankroll))
 	(percent-of-bankroll (* kelly 100)))
     (format "Amount to wager: %s%.2f (%.2f%% of bankroll)."
 	    kelly-bankroll-currency wager-amount percent-of-bankroll)))
 
-(defun kelly-format-expected-profit (p b)
+(defun kelly-format-expected-profit (p b kelly bankroll)
   "Return a string with the expected net profit of a bet with parameters P and B.
-P is the probability of a win. B is the net odds received on a win."
-  (let* ((kelly (kelly-calculate p b))
-	 (expectation (kelly-get-expectation p b))
-	 (expected-profit (* kelly expectation (kelly-get-bankroll)))
-	 (return-on-investment (- (* expectation 100) 100)))
+P is the probability of a win. B is the net odds received on a win. KELLY is the
+Kelly criterion. BANKROLL is the amount of capital you are willing to risk."
+  (let* ((expectation (kelly-get-expectation p b))
+	 (expected-profit (* expectation kelly bankroll))
+	 (wager-amount (kelly-get-wager-amount kelly bankroll))
+	 (return-on-investment (* (/ expected-profit wager-amount) 100)))
     (format "Expected net profit: %s%.2f (%.2f%% return on investment)."
 	    kelly-bankroll-currency expected-profit return-on-investment)))
 
@@ -156,6 +161,10 @@ Given a win probability P and net odds B, return:
 
 which represents the net profit per unit wagered."
   (- (* p b) (- 1 p)))
+
+(defun kelly-get-wager-amount (kelly bankroll)
+  "Return the amount to wager, given KELLY and BANKROLL."
+  (* kelly bankroll))
 
 (defun kelly-get-bankroll ()
   "Return the value of `kelly-bankroll'.
