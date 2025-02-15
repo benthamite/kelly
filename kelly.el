@@ -90,7 +90,7 @@ and then scaled by `kelly-fraction'."
 KELLY is the Kelly criterion."
   (let ((wager-amount (* kelly (kelly-get-bankroll)))
 	(percent-of-bankroll (* kelly 100)))
-    (format "Amount to wager: %s%f (%f%% of bankroll)."
+    (format "Amount to wager: %s%.2f (%.2f%% of bankroll)."
 	    kelly-bankroll-currency wager-amount percent-of-bankroll)))
 
 (defun kelly-format-expected-profit (p b)
@@ -99,8 +99,8 @@ P is the probability of a win. B is the net odds received on a win."
   (let* ((kelly (kelly-calculate p b))
 	 (expectation (kelly-get-expectation p b))
 	 (expected-profit (* kelly expectation (kelly-get-bankroll)))
-	 (return-on-investment (* expectation 100)))
-    (format "Expected net profit: %s%f (%f%% return on investment)."
+	 (return-on-investment (- (* expectation 100) 100)))
+    (format "Expected net profit: %s%.2f (%.2f%% return on investment)."
 	    kelly-bankroll-currency expected-profit return-on-investment)))
 
 ;;;;; Read parameters
