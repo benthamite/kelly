@@ -122,8 +122,7 @@ P is the probability of a win. B is the net odds received on a win."
 ;;;;; Read numbers
 
 (defun kelly-read-odds ()
-  "Prompt the user for odds, and return it.
-If the input is not positive, keep prompting until it is."
+  "Prompt the user for odds, and return it."
   (let ((odds (kelly-read-number 'betting-odds)))
     (kelly-validate-odds odds)
     odds))
@@ -135,8 +134,6 @@ If the input is not positive, keep prompting until it is."
 
 (defun kelly-read-probability (type)
   "Prompt the user for a probability, and return it.
-If the input is not within the valid range, keep prompting until is it.
-
 TYPE is the type of probability to be prompted: either `win-probability' or
 `betting-odds'."
   (let ((probability (kelly-read-number type)))
