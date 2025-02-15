@@ -33,12 +33,16 @@
   "Settings for calculating the Kelly criterion."
   :group 'applications)
 
-(defcustom kelly-b-parameter-format 'odds
+(defcustom kelly-b-parameter-format 'fractional-odds
   "Specifies the format of the `b' parameter.
-If set to `odds', prompt the user to enter net odds (e.g. \"3\"). If set to
-`probability', prompt the user to enter a payout probability (e.g. \"0.75\")."
-  :type '(choice (const :tag "Odds" odds)
-		 (const :tag "Probability" probability))
+If set to `fractional-odds' (default), prompt the user to enter
+ fractional (British) odds (e.g. \"3\"). If set to `decimal-odds', prompt the
+ user to enter decimal (European) odds (e.g. \"4\").If set to
+ `implied-probability', prompt the user to enter the implied betting odds
+ probability (e.g. \"0.25\")."
+  :type '(choice (const :tag "Fractional (British) odds" fractional-odds)
+		 (const :tag "Decimal (European) odds" decimal-odds)
+		 (const :tag "Implied probability" implied-probability))
   :group 'kelly)
 
 (defcustom kelly-fraction 1
@@ -117,12 +121,16 @@ Kelly criterion. BANKROLL is the amount of capital you are willing to risk."
 (defun kelly-read-b ()
   "Read the `b' parameter of the Kelly criterion."
   (pcase kelly-b-parameter-format
-    ('odds
+    ('fractional-odds
      (kelly-read-odds))
-    ('probability
+    ('decimal-odds
+     (let ((decimal-odds (kelly-read-odds)))
+       (- decimal-odds 1)))
+    ('implied-probability
      (let ((prob (kelly-read-probability 'betting-odds)))
-       (/ prob (- 1 prob))))
-    (_ (user-error "Invalid `kelly-b-parameter-format': must be `odds' or `probability'"))))
+       (/ (- 1 prob) prob)))
+    (_ (user-error (concat "Invalid `kelly-b-parameter-format': must be `fracional-odds', "
+			   "`decimal-odds' or `implied-probability'")))))
 
 ;;;;; Read numbers
 
