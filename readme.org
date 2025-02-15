@@ -55,25 +55,31 @@ If you use a package manager, or Emacs +30, you just need to add this your =init
 :ID:       71187CF0-9294-4645-97C9-2EABA2350BB0
 :END:
 
-- =kelly-b-parameter-format=
+*** =kelly-b-parameter-format=
+:PROPERTIES:
+:ID:       9B790E64-D3AA-4236-A444-B85BD1CEE4AC
+:END:
 Specifies the format of the =b= parameter. Options:
   - =odds= (default): Prompts for net odds (e.g. =3=).
   - =probability=: Prompts for a probability (e.g. =0.75=).
 
-- =kelly-fraction=
+*** =kelly-fraction=
+:PROPERTIES:
+:ID:       7906A1EE-86FE-4584-A954-F92EC2F9EFFA
+:END:
   A multiplier applied to the computed Kelly fraction. The default value of =1= uses the full Kelly recommendation, while a value less than =1= scales the wager down proportionally.
 
-- =kelly-bankroll=
+*** =kelly-bankroll=
+:PROPERTIES:
+:ID:       F556F491-47BF-4D4E-B1CD-D84C97451E3F
+:END:
   Sets your total available funds for wagering. If left as =nil=, you'll be prompted to enter a value when running =kelly= for the first time.
 
-- =kelly-bankroll-currency=
+*** =kelly-bankroll-currency=
+:PROPERTIES:
+:ID:       D8CE3BB2-B4B1-46DD-8C28-5886E2509BB9
+:END:
   Specifies your currency symbol (default is ="$"=).
-
-To customize these options, run:
-
-#+begin_src 
-M-x customize-group RET kelly RET
-#+end_src
 
 ** Usage
 :PROPERTIES:
