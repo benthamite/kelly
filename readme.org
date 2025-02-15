@@ -1,0 +1,94 @@
+#+title: kelly
+
+** Introduction
+:PROPERTIES:
+:ID:       59F6BC63-A2DA-4E4F-A642-A05A0AB49E0E
+:END:
+
+=kelly= is an Emacs Lisp implementation of the [[https://en.wikipedia.org/wiki/Kelly_criterion][Kelly criterion]]—a formula used to determine the optimal size of a series of bets—to help you make more informed wagering decisions directly from Emacs.
+
+** Installation
+:PROPERTIES:
+:ID:       0A8B0A05-5B5B-490C-99EE-F36404F6D575
+:END:
+
+*** Manual installation
+:PROPERTIES:
+:ID:       9DE74AF1-508B-4F8F-B09E-FCDDE83192D2
+:END:
+
+Clone this repository and add this to your =init.el= file:
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "path/to/kelly")
+#+end_src
+
+Where ="path/to/kelly"= is the path to the local repository you just cloned.
+
+*** Package managers
+:PROPERTIES:
+:ID:       5AF594FC-8B53-4A87-842E-365C06165B28
+:END:
+
+If you use a package manager, or Emacs +30, you just need to add this your =init.el= file:
+
+#+begin_src emacs-lisp
+;; with vc (Emacs 30 or later)
+(use-package kelly
+:vc (:url "https://github.com/benthamite/kelly"))
+
+;; with elpaca
+(use-package kelly
+:ensure (:host github :repo "benthamite/kelly"))
+
+;; with straight
+(use-package kelly
+:straight (:host github :repo "benthamite/kelly"))
+
+;; with quelpa
+(use-package kelly
+:quelpa (kelly :fetcher github :repo "benthamite/kelly"))
+#+end_src
+
+** Configuration
+:PROPERTIES:
+:ID:       71187CF0-9294-4645-97C9-2EABA2350BB0
+:END:
+
+- =kelly-b-parameter-format=
+Specifies the format of the =b= parameter. Options:
+  - =odds= (default): Prompts for net odds (e.g. =3=).
+  - =probability=: Prompts for a probability (e.g. =0.75=).
+
+- =kelly-fraction=
+  A multiplier applied to the computed Kelly fraction. The default value of =1= uses the full Kelly recommendation, while a value less than =1= scales the wager down proportionally.
+
+- =kelly-bankroll=
+  Sets your total available funds for wagering. If left as =nil=, you'll be prompted to enter a value when running =kelly= for the first time.
+
+- =kelly-bankroll-currency=
+  Specifies your currency symbol (default is ="$"=).
+
+To customize these options, run:
+
+#+begin_src 
+M-x customize-group RET kelly RET
+#+end_src
+
+** Usage
+:PROPERTIES:
+:ID:       426A0C34-CDD5-43F9-BF44-9E3D26567DA1
+:END:
+
+=M-x kelly RET=.
+
+** Troubleshooting
+:PROPERTIES:
+:ID:       6CC73E93-7EC0-471D-A0DB-76812D9E166B
+:END:
+
+The package has not been extensively tested. If you encounter any problems, feel free to open an issue.
+
+# Local Variables:
+# jinx-local-words: "kelly"
+# End:
