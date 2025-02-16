@@ -5,7 +5,7 @@
 :ID:       59F6BC63-A2DA-4E4F-A642-A05A0AB49E0E
 :END:
 
-=kelly= is an Emacs Lisp implementation of the [[https://en.wikipedia.org/wiki/Kelly_criterion][Kelly criterion]]—a formula used to determine the optimal size of a series of bets—to help you make more informed wagering decisions directly from Emacs.
+=kelly= is an Emacs Lisp implementation of the [[https://en.wikipedia.org/wiki/Kelly_criterion][Kelly criterion]], a formula used to determine the optimal size of a series of bets.
 
 ** Installation
 :PROPERTIES:
