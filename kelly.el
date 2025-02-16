@@ -35,11 +35,11 @@
 
 (defcustom kelly-b-parameter-format 'fractional-odds
   "Specifies the format of the `b' parameter.
-If set to `fractional-odds' (default), prompt the user to enter
- fractional (British) odds (e.g. \"3\"). If set to `decimal-odds', prompt the
- user to enter decimal (European) odds (e.g. \"4\").If set to
- `implied-probability', prompt the user to enter the implied betting odds
- probability (e.g. \"0.25\")."
+Four formats are supported:
+
+- `fractional-odds' (default): fractional (British) odds (e.g. `3').
+- `decimal-odds=': decimal (European) odds (e.g. `4').
+- `probability=': implied betting odds probability (e.g. `0.25')."
   :type '(choice (const :tag "Fractional (British) odds" fractional-odds)
 		 (const :tag "Decimal (European) odds" decimal-odds)
 		 (const :tag "Implied probability" implied-probability))
