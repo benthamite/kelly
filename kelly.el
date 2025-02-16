@@ -112,52 +112,61 @@ Kelly criterion. BANKROLL is the amount of capital you are willing to risk."
     (format "Expected net profit: %s%.2f (%.2f%% return on investment)."
 	    kelly-bankroll-currency expected-profit return-on-investment)))
 
+;;;;; Read numbers
+
+(defun kelly-read-probability-number (prompt)
+  "Prompt the user for a number higher than 0 and lower than 1.
+PROMPT is the prompt message."
+  (let ((prob (read-number prompt)))
+    (while (or (<= prob 0) (>= prob 1))
+      (setq prob (read-number "Please enter a number higher than 0 and lower than 1: ")))
+    prob))
+
+;;;;; Read odds
+
+(defun kelly-read-fractional-odds ()
+  "Read and return fractional odds."
+  (let ((odds (read-number "Fractional odds: ")))
+    (while (not (> odds 0))
+      (setq odds (read-number "Please enter a positive number: ")))
+    odds))
+
+(defun kelly-read-decimal-odds ()
+  "Read decimal odds and return it as fractional odds."
+  (let ((odds (read-number "Decimal odds: ")))
+    (while (not (> odds 0))
+      (setq odds (read-number "Please enter a positive number: ")))
+    (- odds 1)))
+
+(defun kelly-read-moneyline-odds ()
+  "Read moneyline odds and return it as fractional odds."
+  (let ((odds (read-number "Moneyline odds: ")))
+    (while (zerop odds)
+      (setq odds (read-number "Please enter a positive or a negative number: ")))
+    (if (< odds 0)
+	(* (/ 100.0 odds) -1)
+      (/ odds 100.0))))
+
+(defun kelly-read-implied-probability ()
+  "Read implied probability and return it as fractional odds."
+  (let ((prob (kelly-read-probability-number "Implied probability: ")))
+    (/ (- 1 prob) prob)))
+
 ;;;;; Read parameters
 
 (defun kelly-read-p ()
   "Read the `p' parameter of the Kelly criterion."
-  (kelly-read-probability 'win-probability))
+  (kelly-read-probability-number "Win probability: "))
 
 (defun kelly-read-b ()
   "Read the `b' parameter of the Kelly criterion."
   (pcase kelly-b-parameter-format
-    ('fractional-odds
-     (kelly-read-odds))
-    ('decimal-odds
-     (let ((decimal-odds (kelly-read-odds)))
-       (- decimal-odds 1)))
-    ('implied-probability
-     (let ((prob (kelly-read-probability 'betting-odds)))
-       (/ (- 1 prob) prob)))
+    ('fractional-odds (kelly-read-fractional-odds))
+    ('decimal-odds (kelly-read-decimal-odds))
+    ('moneyline-odds (kelly-read-moneyline-odds))
+    ('implied-probability (kelly-read-implied-probability))
     (_ (user-error (concat "Invalid `kelly-b-parameter-format': must be `fracional-odds', "
-			   "`decimal-odds' or `implied-probability'")))))
-
-;;;;; Read numbers
-
-(defun kelly-read-odds ()
-  "Prompt the user for positive betting odds, and return the valid number."
-  (let ((odds (kelly-read-number 'betting-odds)))
-    (while (not (> odds 0))
-      (setq odds (read-number "Please enter a positive number for the odds: ")))
-    odds))
-
-(defun kelly-read-probability (label)
-  "Prompt the user for a probability (a number between 0 and 1) using LABEL.
-Return a valid probability number."
-  (let ((prob (kelly-read-number label)))
-    (while (or (< prob 0) (> prob 1))
-      (setq prob (read-number "Please enter a number between 0 and 1: ")))
-    prob))
-
-(defun kelly-read-number (type)
-  "Return a string to prompt the user for a probability.
-TYPE is the type of probability to be prompted: either `win-probability' or
-`betting-odds'."
-  (let ((prompt (pcase type
-		  ('win-probability "Win probability: ")
-		  ('betting-odds  "Betting odds: ")
-		  (_ (user-error "Invalid probability type: must be `win-probability' or `betting-odds'")))))
-    (read-number prompt)))
+			   "`decimal-odds', `moneyline-odds', or `implied-probability'")))))
 
 ;;;;; Misc
 
