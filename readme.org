@@ -64,6 +64,7 @@ Specifies the format of the =b= parameter. Supported formats:
   - =decimal-odds=: Prompts for decimal (European) odds (e.g. =4=).
   - =moneyline-odds=: Promps for Moneyline (American) odds (e.g. =300=).
   - =implied-probability=: Prompts for the implied betting odds probability (e.g. =0.25=).
+  - =implied-percent=: Prompts for the implied betting odds percentage (e.g. =25%=). (The percent symbol is optional.)
 
 *** =kelly-fraction=
 :PROPERTIES:

@@ -40,11 +40,13 @@ Four formats are supported:
 - `fractional-odds' (default): fractional (British) odds (e.g. `3').
 - `decimal-odds': decimal (European) odds (e.g. `4').
 - `moneyline-odds': moneyline (American) odds (e.g. `300').
-- `implied-probability': implied betting odds probability (e.g. `0.25')."
+- `implied-probability': implied betting odds probability (e.g. `0.25').
+- `implied-percent': implied betting odds percentage (e.g. `25%')."
   :type '(choice (const :tag "Fractional (British) odds" fractional-odds)
 		 (const :tag "Decimal (European) odds" decimal-odds)
 		 (const :tag "Moneyline (American) odds" moneyline-odds)
-		 (const :tag "Implied probability" implied-probability))
+		 (const :tag "Implied probability" implied-probability)
+		 (const :tag "Implied percent" implied-percent))
   :group 'kelly)
 
 (defcustom kelly-fraction 1
@@ -154,6 +156,13 @@ PROMPT is the prompt message."
   (let ((prob (kelly-read-probability-number "Implied probability: ")))
     (/ (- 1 prob) prob)))
 
+(defun kelly-read-implied-percent ()
+  "Read implied percentage and return it as fractional odds."
+  (let* ((percent (string-to-number (read-string "Implied percentage: "))))
+    (while (or (<= percent 0) (>= percent 100))
+      (setq percent (string-to-number (read-string "Please enter a number higher than 0 and lower than 100: "))))
+    (/ (- 100 percent) percent)))
+
 ;;;;; Read parameters
 
 (defun kelly-read-p ()
@@ -167,8 +176,10 @@ PROMPT is the prompt message."
     ('decimal-odds (kelly-read-decimal-odds))
     ('moneyline-odds (kelly-read-moneyline-odds))
     ('implied-probability (kelly-read-implied-probability))
+    ('implied-percent (kelly-read-implied-percent))
     (_ (user-error (concat "Invalid `kelly-b-parameter-format': must be `fracional-odds', "
-			   "`decimal-odds', `moneyline-odds', or `implied-probability'")))))
+			   "`decimal-odds', `moneyline-odds', `implied-probability', or "
+			   "`implied-percent'.")))))
 
 ;;;;; Misc
 
