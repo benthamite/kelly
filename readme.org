@@ -59,10 +59,11 @@ If you use a package manager, or Emacs +30, you just need to add this your =init
 :PROPERTIES:
 :ID:       9B790E64-D3AA-4236-A444-B85BD1CEE4AC
 :END:
-Specifies the format of the =b= parameter. Options:
+Specifies the format of the =b= parameter. Supported formats:
   - =fractional-odds= (default): Prompts for fractional (British) odds (e.g. =3=).
-  - =decimal-odds=: Prompts for decimal (European) odds (e.g. =4=)
-  - =probability=: Prompts for the implied betting odds probability (e.g. =0.25=).
+  - =decimal-odds=: Prompts for decimal (European) odds (e.g. =4=).
+  - =moneyline-odds=: Promps for Moneyline (American) odds (e.g. =300=).
+  - =implied-probability=: Prompts for the implied betting odds probability (e.g. =0.25=).
 
 *** =kelly-fraction=
 :PROPERTIES:

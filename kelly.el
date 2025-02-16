@@ -38,10 +38,12 @@
 Four formats are supported:
 
 - `fractional-odds' (default): fractional (British) odds (e.g. `3').
-- `decimal-odds=': decimal (European) odds (e.g. `4').
-- `probability=': implied betting odds probability (e.g. `0.25')."
+- `decimal-odds': decimal (European) odds (e.g. `4').
+- `moneyline-odds': moneyline (American) odds (e.g. `300').
+- `implied-probability': implied betting odds probability (e.g. `0.25')."
   :type '(choice (const :tag "Fractional (British) odds" fractional-odds)
 		 (const :tag "Decimal (European) odds" decimal-odds)
+		 (const :tag "Moneyline (American) odds" moneyline-odds)
 		 (const :tag "Implied probability" implied-probability))
   :group 'kelly)
 
