@@ -1,4 +1,4 @@
-;;; kelly.el --- Elisp Kelly criterion calculator -*- lexical-binding: t; fill-column: 80 -*-
+;;; kelly.el --- Elisp Kelly criterion calculator -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2025
 
