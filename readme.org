@@ -1,103 +1,277 @@
-#+title: kelly
+#+title: kelly: Kelly criterion calculator for Emacs
+#+author: Pablo Stafforini
+#+email: pablo@stafforini.com
+#+language: en
+#+options: ':t toc:t author:t email:t num:t
+#+startup: content
+#+export_file_name: kelly.info
+#+texinfo_filename: kelly.info
+#+texinfo_dir_category: Emacs misc features
+#+texinfo_dir_title: Kelly: (kelly)
+#+texinfo_dir_desc: Kelly criterion calculator
 
-** Introduction
+This manual describes the features and customization options for the Emacs Lisp file =kelly.el=.
+
+* Overview
 :PROPERTIES:
-:ID:       59F6BC63-A2DA-4E4F-A642-A05A0AB49E0E
+:CUSTOM_ID: h:overview
 :END:
 
-=kelly= is an Emacs Lisp implementation of the [[https://en.wikipedia.org/wiki/Kelly_criterion][Kelly criterion]], a formula used to determine the optimal size of a series of bets.
+The [[https://en.wikipedia.org/wiki/Kelly_criterion][Kelly criterion]] is a formula from probability theory that determines the optimal fraction of a bankroll to wager on a bet with positive expected value.  Given the probability of winning and the odds offered, the Kelly formula maximizes the expected logarithm of wealth over repeated bets --- in other words, it is the strategy that produces the highest long-run growth rate.
 
-** Installation
+=kelly.el= brings this calculation into Emacs.  The package provides a single interactive command, ~kelly~, which prompts for the win probability and the betting odds, then displays the recommended wager amount along with the expected net profit.  All computation is done in the minibuffer: no external dependencies, no buffers, no files.
+
+The package supports five different odds formats commonly used in sports betting and prediction markets: fractional (British), decimal (European), moneyline (American), implied probability, and implied percentage.  It also supports /fractional Kelly/ betting, a widely used risk-reduction strategy in which only a fixed fraction of the full Kelly recommendation is wagered.
+
+* Installation
 :PROPERTIES:
-:ID:       0A8B0A05-5B5B-490C-99EE-F36404F6D575
+:CUSTOM_ID: h:installation
 :END:
 
-*** Manual installation
+** Manual installation
 :PROPERTIES:
-:ID:       9DE74AF1-508B-4F8F-B09E-FCDDE83192D2
+:CUSTOM_ID: h:manual-installation
 :END:
 
-Clone this repository and add this to your =init.el= file:
+Clone the repository and add its location to your load path:
 
 #+begin_src emacs-lisp
 (add-to-list 'load-path "path/to/kelly")
+(require 'kelly)
 #+end_src
 
-Where ="path/to/kelly"= is the path to the local repository you just cloned.
+Replace ="path/to/kelly"= with the actual path to your local clone.
 
-*** Package managers
+** Package managers
 :PROPERTIES:
-:ID:       5AF594FC-8B53-4A87-842E-365C06165B28
+:CUSTOM_ID: h:package-managers
 :END:
 
-If you use a package manager, or Emacs +30, you just need to add this your =init.el= file:
+With any of the common package managers, add the appropriate form to your init file:
 
 #+begin_src emacs-lisp
 ;; with vc (Emacs 30 or later)
 (use-package kelly
-:vc (:url "https://github.com/benthamite/kelly"))
+  :vc (:url "https://github.com/benthamite/kelly"))
 
 ;; with elpaca
 (use-package kelly
-:ensure (:host github :repo "benthamite/kelly"))
+  :ensure (:host github :repo "benthamite/kelly"))
 
 ;; with straight
 (use-package kelly
-:straight (:host github :repo "benthamite/kelly"))
+  :straight (:host github :repo "benthamite/kelly"))
 
 ;; with quelpa
 (use-package kelly
-:quelpa (kelly :fetcher github :repo "benthamite/kelly"))
+  :quelpa (kelly :fetcher github :repo "benthamite/kelly"))
 #+end_src
 
-** Configuration
+* Requirements
 :PROPERTIES:
-:ID:       71187CF0-9294-4645-97C9-2EABA2350BB0
+:CUSTOM_ID: h:requirements
 :END:
 
-*** =kelly-b-parameter-format=
-:PROPERTIES:
-:ID:       9B790E64-D3AA-4236-A444-B85BD1CEE4AC
-:END:
-Specifies the format of the =b= parameter. Supported formats:
-  - =fractional-odds= (default): Prompts for fractional (British) odds (e.g. =3=).
-  - =decimal-odds=: Prompts for decimal (European) odds (e.g. =4=).
-  - =moneyline-odds=: Promps for Moneyline (American) odds (e.g. =300=).
-  - =implied-probability=: Prompts for the implied betting odds probability (e.g. =0.25=).
-  - =implied-percent=: Prompts for the implied betting odds percentage (e.g. =25%=). (The percent symbol is optional.)
+=kelly.el= requires Emacs 25.1 or later.  It has no external dependencies.
 
-*** =kelly-fraction=
+* User options
 :PROPERTIES:
-:ID:       7906A1EE-86FE-4584-A954-F92EC2F9EFFA
-:END:
-  A multiplier applied to the computed Kelly fraction. The default value of =1= uses the full Kelly recommendation, while a value less than =1= scales the wager down proportionally.
-
-*** =kelly-bankroll=
-:PROPERTIES:
-:ID:       F556F491-47BF-4D4E-B1CD-D84C97451E3F
-:END:
-  Sets your total available funds for wagering. If left as =nil=, you'll be prompted to enter a value when running =kelly= for the first time.
-
-*** =kelly-bankroll-currency=
-:PROPERTIES:
-:ID:       D8CE3BB2-B4B1-46DD-8C28-5886E2509BB9
-:END:
-  Specifies your currency symbol (default is ="$"=).
-
-** Usage
-:PROPERTIES:
-:ID:       426A0C34-CDD5-43F9-BF44-9E3D26567DA1
+:CUSTOM_ID: h:user-options
 :END:
 
-=M-x kelly RET=.
+All user options belong to the ~kelly~ customization group and can be configured interactively via =M-x customize-group RET kelly RET= or by setting them in your init file.
 
-** Troubleshooting
+** Odds format
 :PROPERTIES:
-:ID:       6CC73E93-7EC0-471D-A0DB-76812D9E166B
+:CUSTOM_ID: h:odds-format
 :END:
 
-The package has not been extensively tested. If you encounter any problems, feel free to open an issue.
+#+vindex: kelly-b-parameter-format
+The user option ~kelly-b-parameter-format~ controls which odds format the ~kelly~ command prompts for ([[#h:kelly][Calculating the optimal wager]]).  The /b/ parameter in the Kelly formula represents the net odds received on a win; different betting traditions express the same information in different ways.
+
+Five formats are supported:
+
+- ~fractional-odds~ (default) :: Fractional (British) odds.  A value of =3= means you receive 3 units of profit for every 1 unit wagered, plus your stake back.
+- ~decimal-odds~ :: Decimal (European) odds.  A value of =4.0= means a total return of 4 units per 1 unit wagered (equivalent to fractional odds of 3).  Must be greater than 1.
+- ~moneyline-odds~ :: Moneyline (American) odds.  Positive values (e.g. =+300=) indicate profit on a 100-unit stake; negative values (e.g. =-150=) indicate how much you must stake to win 100 units.
+- ~implied-probability~ :: The probability implied by the betting odds, expressed as a decimal between 0 and 1 exclusive (e.g. =0.25=).
+- ~implied-percent~ :: The same implied probability expressed as a percentage between 0 and 100 exclusive (e.g. =25=).
+
+The choice of format is purely a matter of convenience; all formats are converted internally to fractional odds before the Kelly calculation is performed.
+
+#+begin_src emacs-lisp
+;; Use decimal (European) odds
+(setq kelly-b-parameter-format 'decimal-odds)
+#+end_src
+
+** Fractional Kelly
+:PROPERTIES:
+:CUSTOM_ID: h:fractional-kelly
+:END:
+
+#+vindex: kelly-fraction
+The user option ~kelly-fraction~ is a multiplier applied to the computed Kelly fraction.  Its default value is =1=, meaning the full Kelly recommendation is used.
+
+In practice, the full Kelly criterion can lead to large swings in bankroll size, and many bettors prefer a more conservative approach.  Setting ~kelly-fraction~ to a value between 0 and 1 scales the recommended wager down proportionally.  For example, a value of =0.5= ("half Kelly") recommends wagering half of what the full Kelly formula suggests.
+
+#+begin_src emacs-lisp
+;; Use half Kelly for a more conservative strategy
+(setq kelly-fraction 0.5)
+#+end_src
+
+The value must be a positive number.  If it is zero, negative, or not a number, ~kelly-calculate~ signals an error ([[#h:kelly-calculate][Core calculation]]).
+
+** Bankroll
+:PROPERTIES:
+:CUSTOM_ID: h:bankroll
+:END:
+
+#+vindex: kelly-bankroll
+The user option ~kelly-bankroll~ specifies the total amount of capital available for wagering.  The Kelly criterion expresses its recommendation as a fraction of the bankroll, so this value is needed to translate the fraction into a concrete monetary amount.
+
+The default value is ~nil~.  When ~nil~, the ~kelly~ command prompts for a bankroll amount on the first invocation and stores the entered value in this variable for subsequent calls within the same session.  If you want to avoid the prompt, set it in your init file:
+
+#+begin_src emacs-lisp
+(setq kelly-bankroll 10000)
+#+end_src
+
+#+vindex: kelly-bankroll-currency
+The user option ~kelly-bankroll-currency~ specifies the currency symbol displayed alongside monetary amounts in the output.  The default value is ="$"=.  Change it to match your local currency:
+
+#+begin_src emacs-lisp
+(setq kelly-bankroll-currency "EUR")
+#+end_src
+
+* Commands
+:PROPERTIES:
+:CUSTOM_ID: h:commands
+:END:
+
+** Calculating the optimal wager
+:PROPERTIES:
+:CUSTOM_ID: h:kelly
+:END:
+
+#+findex: kelly
+The command ~kelly~ is the main entry point to the package.  Invoke it with =M-x kelly RET= to calculate the optimal wager for a bet.
+
+The command prompts for two inputs in sequence:
+
+1. *Win probability* --- your estimated probability that the bet will win, as a decimal between 0 and 1 exclusive.  For example, enter =0.6= if you believe there is a 60% chance of winning.
+
+2. *Betting odds* --- the odds offered on the bet, in whatever format ~kelly-b-parameter-format~ is set to ([[#h:odds-format][Odds format]]).
+
+After collecting these inputs, the command computes the Kelly fraction using ~kelly-calculate~ ([[#h:kelly-calculate][Core calculation]]) and displays a message in the echo area with two pieces of information:
+
+- The *amount to wager*, shown as both an absolute monetary value and a percentage of the bankroll.
+- The *expected net profit*, shown as both an absolute value and as a return-on-investment percentage.
+
+If the Kelly fraction is zero or negative --- meaning the bet has non-positive expected value at the given odds --- the command instead displays a message advising against wagering.
+
+Here is an example session using the default settings (fractional odds, full Kelly, $1000 bankroll):
+
+1. =M-x kelly RET=
+2. =Win probability: 0.6 RET=
+3. =Fractional odds: 2 RET=
+
+The output might read:
+
+#+begin_example
+Amount to wager: $400.00 (40.00% of bankroll). Expected net profit: $160.00 (40.00% return on investment).
+#+end_example
+
+* Functions
+:PROPERTIES:
+:CUSTOM_ID: h:functions
+:END:
+
+The following public functions are available for programmatic use.  They allow you to integrate Kelly criterion calculations into custom Elisp workflows without going through the interactive prompts.
+
+** Core calculation
+:PROPERTIES:
+:CUSTOM_ID: h:kelly-calculate
+:END:
+
+#+findex: kelly-calculate
+The function ~kelly-calculate~ takes two arguments: a win probability /p/ (a number between 0 and 1) and net fractional odds /b/ (a positive number).  It returns the Kelly fraction scaled by ~kelly-fraction~ ([[#h:fractional-kelly][Fractional Kelly]]).
+
+The underlying formula is:
+
+#+begin_example
+f = ((b + 1) * p - 1) / b
+#+end_example
+
+The function validates its inputs: it signals an error if /b/ is zero (which would cause division by zero) or if ~kelly-fraction~ is not a positive number.
+
+#+begin_src emacs-lisp
+;; 60% win probability, 2:1 fractional odds, full Kelly
+(let ((kelly-fraction 1))
+  (kelly-calculate 0.6 2))  ; => 0.4
+#+end_src
+
+** Expected value and wager sizing
+:PROPERTIES:
+:CUSTOM_ID: h:expected-value-and-wager-sizing
+:END:
+
+#+findex: kelly-get-expectation
+#+findex: kelly-get-wager-amount
+The function ~kelly-get-expectation~ computes the expected net profit per unit wagered, given a win probability /p/ and net odds /b/.  The formula is =p * b - (1 - p)=.  A positive return value indicates a bet with positive expected value.
+
+The function ~kelly-get-wager-amount~ multiplies the Kelly fraction by the bankroll to produce the absolute wager amount.
+
+** Bankroll management
+:PROPERTIES:
+:CUSTOM_ID: h:bankroll-management
+:END:
+
+#+findex: kelly-get-bankroll
+#+findex: kelly-read-bankroll
+The function ~kelly-get-bankroll~ returns the current value of ~kelly-bankroll~ ([[#h:bankroll][Bankroll]]).  If ~kelly-bankroll~ is ~nil~, it prompts the user via ~kelly-read-bankroll~ and stores the result.
+
+The function ~kelly-read-bankroll~ prompts interactively for a positive bankroll amount without modifying any global variable.  It can be called directly if you want to update the bankroll mid-session:
+
+#+begin_src emacs-lisp
+(setq kelly-bankroll (kelly-read-bankroll))
+#+end_src
+
+** Odds conversion
+:PROPERTIES:
+:CUSTOM_ID: h:odds-conversion
+:END:
+
+#+findex: kelly-read-fractional-odds
+#+findex: kelly-read-decimal-odds
+#+findex: kelly-read-moneyline-odds
+#+findex: kelly-read-implied-probability
+#+findex: kelly-read-implied-percent
+Each odds format has a dedicated reader function that prompts the user for input and returns the equivalent fractional odds value.  These are:
+
+- ~kelly-read-fractional-odds~ --- Reads fractional odds directly (must be positive).
+- ~kelly-read-decimal-odds~ --- Reads decimal odds (must be greater than 1) and subtracts 1 to convert to fractional.
+- ~kelly-read-moneyline-odds~ --- Reads moneyline odds (any non-zero number) and converts to fractional.
+- ~kelly-read-implied-probability~ --- Reads a probability between 0 and 1 exclusive and converts to fractional odds via =(1 - p) / p=.
+- ~kelly-read-implied-percent~ --- Reads a percentage between 0 and 100 exclusive and converts to fractional odds via =(100 - pct) / pct=.
+
+All reader functions validate their input in a loop, re-prompting if the entered value is out of range.  The appropriate reader is selected automatically by ~kelly-read-b~ based on the value of ~kelly-b-parameter-format~ ([[#h:odds-format][Odds format]]).
+
+* Indices
+:PROPERTIES:
+:CUSTOM_ID: h:indices
+:END:
+
+** Function index
+:PROPERTIES:
+:INDEX: fn
+:CUSTOM_ID: h:function-index
+:END:
+
+** Variable index
+:PROPERTIES:
+:INDEX: vr
+:CUSTOM_ID: h:variable-index
+:END:
 
 # Local Variables:
-# jinx-local-words: "kelly"
+# jinx-local-words: "kelly bankroll"
 # End:
