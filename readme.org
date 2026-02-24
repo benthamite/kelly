@@ -199,9 +199,9 @@ The function ~kelly-calculate~ takes two arguments: a win probability /p/ (a num
 
 The underlying formula is:
 
-#+begin_example
-f = ((b + 1) * p - 1) / b
-#+end_example
+\[
+f = \frac{(b + 1)\,p - 1}{b}
+\]
 
 The function validates its inputs: it signals an error if /b/ is zero (which would cause division by zero) or if ~kelly-fraction~ is not a positive number.
 
