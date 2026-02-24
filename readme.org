@@ -179,7 +179,7 @@ Here is an example session using the default settings (fractional odds, full Kel
 The output might read:
 
 #+begin_example
-Amount to wager: $400.00 (40.00% of bankroll). Expected net profit: $160.00 (40.00% return on investment).
+Amount to wager: $400.00 (40.00% of bankroll). Expected net profit: $320.00 (80.00% return on investment).
 #+end_example
 
 * Functions
