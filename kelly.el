@@ -5,6 +5,7 @@
 ;; Author: Pablo Stafforini
 ;; URL: https://github.com/benthamite/kelly
 ;; Version: 0.1
+;; Package-Requires: ((emacs "25.1"))
 
 ;; This file is NOT part of GNU Emacs.
 
@@ -35,7 +36,7 @@
 
 (defcustom kelly-b-parameter-format 'fractional-odds
   "Specifies the format of the `b' parameter.
-Four formats are supported:
+Five formats are supported:
 
 - `fractional-odds' (default): fractional (British) odds (e.g. `3').
 - `decimal-odds': decimal (European) odds (e.g. `4').
@@ -58,7 +59,8 @@ If set to a value less than 1, the recommended wager is scaled accordingly."
 
 (defcustom kelly-bankroll nil
   "The amount of capital you are willing to risk."
-  :type 'number
+  :type '(choice (const :tag "Prompt when needed" nil)
+		 number)
   :group 'kelly)
 
 (defcustom kelly-bankroll-currency "$"
@@ -76,8 +78,8 @@ If set to a value less than 1, the recommended wager is scaled accordingly."
          (b (kelly-read-b))
          (kelly (kelly-calculate p b))
          (bankroll (kelly-get-bankroll)))
-    (if (< kelly 0)
-        (message "Kelly fraction is negative (%f). No wager is recommended." kelly)
+    (if (<= kelly 0)
+        (message "Kelly fraction is non-positive (%f). No wager is recommended." kelly)
       (message "%s %s"
 	       (kelly-format-wager-amount kelly bankroll)
 	       (kelly-format-expected-profit p b kelly bankroll)))))
@@ -91,7 +93,11 @@ The Kelly criterion is computed using the formula:
     f = ((b + 1) × p – 1) / b
 
 and then scaled by `kelly-fraction'."
-  (let ((kelly (/ (- (* (+ 1 b) p) 1) b)))
+  (when (zerop b)
+    (user-error "Net odds (b) must be non-zero"))
+  (when (or (not (numberp kelly-fraction)) (<= kelly-fraction 0))
+    (user-error "`kelly-fraction' must be a positive number, got %S" kelly-fraction))
+  (let ((kelly (/ (- (* (+ 1 b) p) 1) (float b))))
     (* kelly kelly-fraction)))
 
 ;;;;; Format strings
@@ -138,8 +144,8 @@ PROMPT is the prompt message."
 (defun kelly-read-decimal-odds ()
   "Read decimal odds and return it as fractional odds."
   (let ((odds (read-number "Decimal odds: ")))
-    (while (not (> odds 0))
-      (setq odds (read-number "Please enter a positive number: ")))
+    (while (not (> odds 1))
+      (setq odds (read-number "Please enter a number greater than 1: ")))
     (- odds 1)))
 
 (defun kelly-read-moneyline-odds ()
@@ -158,10 +164,10 @@ PROMPT is the prompt message."
 
 (defun kelly-read-implied-percent ()
   "Read implied percentage and return it as fractional odds."
-  (let* ((percent (string-to-number (read-string "Implied percentage: "))))
+  (let ((percent (read-number "Implied percentage: ")))
     (while (or (<= percent 0) (>= percent 100))
-      (setq percent (string-to-number (read-string "Please enter a number higher than 0 and lower than 100: "))))
-    (/ (- 100 percent) percent)))
+      (setq percent (read-number "Please enter a number higher than 0 and lower than 100: ")))
+    (/ (- 100.0 percent) percent)))
 
 ;;;;; Read parameters
 
@@ -177,9 +183,9 @@ PROMPT is the prompt message."
     ('moneyline-odds (kelly-read-moneyline-odds))
     ('implied-probability (kelly-read-implied-probability))
     ('implied-percent (kelly-read-implied-percent))
-    (_ (user-error (concat "Invalid `kelly-b-parameter-format': must be `fracional-odds', "
+    (_ (user-error (concat "Invalid `kelly-b-parameter-format': must be `fractional-odds', "
 			   "`decimal-odds', `moneyline-odds', `implied-probability', or "
-			   "`implied-percent'.")))))
+			   "`implied-percent'")))))
 
 ;;;;; Misc
 
