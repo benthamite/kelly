@@ -103,7 +103,7 @@ The choice of format is purely a matter of convenience; all formats are converte
 
 #+begin_src emacs-lisp
 ;; Use decimal (European) odds
-(setq kelly-b-parameter-format 'decimal-odds)
+(setopt kelly-b-parameter-format 'decimal-odds)
 #+end_src
 
 ** Fractional Kelly
@@ -118,7 +118,7 @@ In practice, the full Kelly criterion can lead to large swings in bankroll size,
 
 #+begin_src emacs-lisp
 ;; Use half Kelly for a more conservative strategy
-(setq kelly-fraction 0.5)
+(setopt kelly-fraction 0.5)
 #+end_src
 
 The value must be a positive number.  If it is zero, negative, or not a number, ~kelly-calculate~ signals an error ([[#h:kelly-calculate][Core calculation]]).
@@ -134,14 +134,14 @@ The user option ~kelly-bankroll~ specifies the total amount of capital available
 The default value is ~nil~.  When ~nil~, the ~kelly~ command prompts for a bankroll amount on the first invocation and stores the entered value in this variable for subsequent calls within the same session.  If you want to avoid the prompt, set it in your init file:
 
 #+begin_src emacs-lisp
-(setq kelly-bankroll 10000)
+(setopt kelly-bankroll 10000)
 #+end_src
 
 #+vindex: kelly-bankroll-currency
 The user option ~kelly-bankroll-currency~ specifies the currency symbol displayed alongside monetary amounts in the output.  The default value is ="$"=.  Change it to match your local currency:
 
 #+begin_src emacs-lisp
-(setq kelly-bankroll-currency "EUR")
+(setopt kelly-bankroll-currency "EUR")
 #+end_src
 
 * Commands
@@ -234,7 +234,7 @@ The function ~kelly-get-bankroll~ returns the current value of ~kelly-bankroll~ 
 The function ~kelly-read-bankroll~ prompts interactively for a positive bankroll amount without modifying any global variable.  It can be called directly if you want to update the bankroll mid-session:
 
 #+begin_src emacs-lisp
-(setq kelly-bankroll (kelly-read-bankroll))
+(setopt kelly-bankroll (kelly-read-bankroll))
 #+end_src
 
 ** Odds conversion
