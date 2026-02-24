@@ -1,0 +1,352 @@
+\input texinfo    @c -*- texinfo -*-
+@c %**start of header
+@setfilename kelly.info
+@settitle kelly: Kelly criterion calculator for Emacs
+@documentencoding UTF-8
+@documentlanguage en
+@c %**end of header
+
+@dircategory Emacs misc features
+@direntry
+* Kelly: (kelly).       Kelly criterion calculator.
+@end direntry
+
+@finalout
+@titlepage
+@title kelly: Kelly criterion calculator for Emacs
+@author Pablo Stafforini (@email{pablo@@stafforini.com})
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top kelly: Kelly criterion calculator for Emacs
+
+This manual describes the features and customization options for the Emacs Lisp file @samp{kelly.el}.
+
+@end ifnottex
+
+@menu
+* Overview::
+* Installation::
+* Requirements::
+* User options::
+* Commands::
+* Functions::
+* Indices::
+
+@detailmenu
+--- The Detailed Node Listing ---
+
+Installation
+
+* Manual installation::
+* Package managers::
+
+User options
+
+* Odds format::
+* Fractional Kelly::
+* Bankroll::
+
+Commands
+
+* Calculating the optimal wager::
+
+Functions
+
+* Core calculation::
+* Expected value and wager sizing::
+* Bankroll management::
+* Odds conversion::
+
+Indices
+
+* Function index::
+* Variable index::
+
+@end detailmenu
+@end menu
+
+@node Overview
+@chapter Overview
+
+The @uref{https://en.wikipedia.org/wiki/Kelly_criterion, Kelly criterion} is a formula from probability theory that determines the optimal fraction of a bankroll to wager on a bet with positive expected value.  Given the probability of winning and the odds offered, the Kelly formula maximizes the expected logarithm of wealth over repeated bets --- in other words, it is the strategy that produces the highest long-run growth rate.
+
+@samp{kelly.el} brings this calculation into Emacs.  The package provides a single interactive command, @code{kelly}, which prompts for the win probability and the betting odds, then displays the recommended wager amount along with the expected net profit.  All computation is done in the minibuffer: no external dependencies, no buffers, no files.
+
+The package supports five different odds formats commonly used in sports betting and prediction markets: fractional (British), decimal (European), moneyline (American), implied probability, and implied percentage.  It also supports @emph{fractional Kelly} betting, a widely used risk-reduction strategy in which only a fixed fraction of the full Kelly recommendation is wagered.
+
+The development repository is on @uref{https://github.com/benthamite/kelly, GitHub}.
+
+@node Installation
+@chapter Installation
+
+@menu
+* Manual installation::
+* Package managers::
+@end menu
+
+@node Manual installation
+@section Manual installation
+
+Clone the repository and add its location to your load path:
+
+@lisp
+(add-to-list 'load-path "path/to/kelly")
+(require 'kelly)
+@end lisp
+
+Replace @samp{"path/to/kelly"} with the actual path to your local clone.
+
+@node Package managers
+@section Package managers
+
+With any of the common package managers, add the appropriate form to your init file:
+
+@lisp
+;; with vc (Emacs 30 or later)
+(use-package kelly
+  :vc (:url "https://github.com/benthamite/kelly"))
+
+;; with elpaca
+(use-package kelly
+  :ensure (:host github :repo "benthamite/kelly"))
+
+;; with straight
+(use-package kelly
+  :straight (:host github :repo "benthamite/kelly"))
+
+;; with quelpa
+(use-package kelly
+  :quelpa (kelly :fetcher github :repo "benthamite/kelly"))
+@end lisp
+
+@node Requirements
+@chapter Requirements
+
+@samp{kelly.el} requires Emacs 25.1 or later.  It has no external dependencies.
+
+@node User options
+@chapter User options
+
+All user options belong to the @code{kelly} customization group and can be configured interactively via @samp{M-x customize-group RET kelly RET} or by setting them in your init file.
+
+@menu
+* Odds format::
+* Fractional Kelly::
+* Bankroll::
+@end menu
+
+@node Odds format
+@section Odds format
+
+@vindex kelly-b-parameter-format
+The user option @code{kelly-b-parameter-format} controls which odds format the @code{kelly} command prompts for (@ref{Calculating the optimal wager}).  The @emph{b} parameter in the Kelly formula represents the net odds received on a win; different betting traditions express the same information in different ways.
+
+Five formats are supported:
+
+@table @asis
+@item @code{fractional-odds} (default)
+Fractional (British) odds.  A value of @samp{3} means you receive 3 units of profit for every 1 unit wagered, plus your stake back.
+@item @code{decimal-odds}
+Decimal (European) odds.  A value of @samp{4.0} means a total return of 4 units per 1 unit wagered (equivalent to fractional odds of 3).  Must be greater than 1.
+@item @code{moneyline-odds}
+Moneyline (American) odds.  Positive values (e.g. @samp{+300}) indicate profit on a 100-unit stake; negative values (e.g. @samp{-150}) indicate how much you must stake to win 100 units.
+@item @code{implied-probability}
+The probability implied by the betting odds, expressed as a decimal between 0 and 1 exclusive (e.g. @samp{0.25}).
+@item @code{implied-percent}
+The same implied probability expressed as a percentage between 0 and 100 exclusive (e.g. @samp{25}).
+@end table
+
+The choice of format is purely a matter of convenience; all formats are converted internally to fractional odds before the Kelly calculation is performed.
+
+@lisp
+;; Use decimal (European) odds
+(setq kelly-b-parameter-format 'decimal-odds)
+@end lisp
+
+@node Fractional Kelly
+@section Fractional Kelly
+
+@vindex kelly-fraction
+The user option @code{kelly-fraction} is a multiplier applied to the computed Kelly fraction.  Its default value is @samp{1}, meaning the full Kelly recommendation is used.
+
+In practice, the full Kelly criterion can lead to large swings in bankroll size, and many bettors prefer a more conservative approach.  Setting @code{kelly-fraction} to a value between 0 and 1 scales the recommended wager down proportionally.  For example, a value of @samp{0.5} (``half Kelly'') recommends wagering half of what the full Kelly formula suggests.
+
+@lisp
+;; Use half Kelly for a more conservative strategy
+(setq kelly-fraction 0.5)
+@end lisp
+
+The value must be a positive number.  If it is zero, negative, or not a number, @code{kelly-calculate} signals an error (@ref{Core calculation}).
+
+@node Bankroll
+@section Bankroll
+
+@vindex kelly-bankroll
+The user option @code{kelly-bankroll} specifies the total amount of capital available for wagering.  The Kelly criterion expresses its recommendation as a fraction of the bankroll, so this value is needed to translate the fraction into a concrete monetary amount.
+
+The default value is @code{nil}.  When @code{nil}, the @code{kelly} command prompts for a bankroll amount on the first invocation and stores the entered value in this variable for subsequent calls within the same session.  If you want to avoid the prompt, set it in your init file:
+
+@lisp
+(setq kelly-bankroll 10000)
+@end lisp
+
+@vindex kelly-bankroll-currency
+The user option @code{kelly-bankroll-currency} specifies the currency symbol displayed alongside monetary amounts in the output.  The default value is @samp{"$"}.  Change it to match your local currency:
+
+@lisp
+(setq kelly-bankroll-currency "EUR")
+@end lisp
+
+@node Commands
+@chapter Commands
+
+@menu
+* Calculating the optimal wager::
+@end menu
+
+@node Calculating the optimal wager
+@section Calculating the optimal wager
+
+@findex kelly
+The command @code{kelly} is the main entry point to the package.  Invoke it with @samp{M-x kelly RET} to calculate the optimal wager for a bet.
+
+The command prompts for two inputs in sequence:
+
+@enumerate
+@item
+@strong{Win probability} --- your estimated probability that the bet will win, as a decimal between 0 and 1 exclusive.  For example, enter @samp{0.6} if you believe there is a 60% chance of winning.
+
+@item
+@strong{Betting odds} --- the odds offered on the bet, in whatever format @code{kelly-b-parameter-format} is set to (@ref{Odds format}).
+@end enumerate
+
+After collecting these inputs, the command computes the Kelly fraction using @code{kelly-calculate} (@ref{Core calculation}) and displays a message in the echo area with two pieces of information:
+
+@itemize
+@item
+The @strong{amount to wager}, shown as both an absolute monetary value and a percentage of the bankroll.
+@item
+The @strong{expected net profit}, shown as both an absolute value and as a return-on-investment percentage.
+@end itemize
+
+If the Kelly fraction is zero or negative --- meaning the bet has non-positive expected value at the given odds --- the command instead displays a message advising against wagering.
+
+Here is an example session using the default settings (fractional odds, full Kelly, $1000 bankroll):
+
+@enumerate
+@item
+@samp{M-x kelly RET}
+@item
+@samp{Win probability: 0.6 RET}
+@item
+@samp{Fractional odds: 2 RET}
+@end enumerate
+
+The output might read:
+
+@example
+Amount to wager: $400.00 (40.00% of bankroll). Expected net profit: $160.00 (40.00% return on investment).
+@end example
+
+@node Functions
+@chapter Functions
+
+The following public functions are available for programmatic use.  They allow you to integrate Kelly criterion calculations into custom Elisp workflows without going through the interactive prompts.
+
+@menu
+* Core calculation::
+* Expected value and wager sizing::
+* Bankroll management::
+* Odds conversion::
+@end menu
+
+@node Core calculation
+@section Core calculation
+
+@findex kelly-calculate
+The function @code{kelly-calculate} takes two arguments: a win probability @emph{p} (a number between 0 and 1) and net fractional odds @emph{b} (a positive number).  It returns the Kelly fraction scaled by @code{kelly-fraction} (@ref{Fractional Kelly}).
+
+The underlying formula is:
+
+@example
+f = ((b + 1) * p - 1) / b
+@end example
+
+The function validates its inputs: it signals an error if @emph{b} is zero (which would cause division by zero) or if @code{kelly-fraction} is not a positive number.
+
+@lisp
+;; 60% win probability, 2:1 fractional odds, full Kelly
+(let ((kelly-fraction 1))
+  (kelly-calculate 0.6 2))  ; => 0.4
+@end lisp
+
+@node Expected value and wager sizing
+@section Expected value and wager sizing
+
+@findex kelly-get-expectation
+@findex kelly-get-wager-amount
+The function @code{kelly-get-expectation} computes the expected net profit per unit wagered, given a win probability @emph{p} and net odds @emph{b}.  The formula is @samp{p * b - (1 - p)}.  A positive return value indicates a bet with positive expected value.
+
+The function @code{kelly-get-wager-amount} multiplies the Kelly fraction by the bankroll to produce the absolute wager amount.
+
+@node Bankroll management
+@section Bankroll management
+
+@findex kelly-get-bankroll
+@findex kelly-read-bankroll
+The function @code{kelly-get-bankroll} returns the current value of @code{kelly-bankroll} (@ref{Bankroll}).  If @code{kelly-bankroll} is @code{nil}, it prompts the user via @code{kelly-read-bankroll} and stores the result.
+
+The function @code{kelly-read-bankroll} prompts interactively for a positive bankroll amount without modifying any global variable.  It can be called directly if you want to update the bankroll mid-session:
+
+@lisp
+(setq kelly-bankroll (kelly-read-bankroll))
+@end lisp
+
+@node Odds conversion
+@section Odds conversion
+
+@findex kelly-read-fractional-odds
+@findex kelly-read-decimal-odds
+@findex kelly-read-moneyline-odds
+@findex kelly-read-implied-probability
+@findex kelly-read-implied-percent
+Each odds format has a dedicated reader function that prompts the user for input and returns the equivalent fractional odds value.  These are:
+
+@itemize
+@item
+@code{kelly-read-fractional-odds} --- Reads fractional odds directly (must be positive).
+@item
+@code{kelly-read-decimal-odds} --- Reads decimal odds (must be greater than 1) and subtracts 1 to convert to fractional.
+@item
+@code{kelly-read-moneyline-odds} --- Reads moneyline odds (any non-zero number) and converts to fractional.
+@item
+@code{kelly-read-implied-probability} --- Reads a probability between 0 and 1 exclusive and converts to fractional odds via @samp{(1 - p) / p}.
+@item
+@code{kelly-read-implied-percent} --- Reads a percentage between 0 and 100 exclusive and converts to fractional odds via @samp{(100 - pct) / pct}.
+@end itemize
+
+All reader functions validate their input in a loop, re-prompting if the entered value is out of range.  The appropriate reader is selected automatically by @code{kelly-read-b} based on the value of @code{kelly-b-parameter-format} (@ref{Odds format}).
+
+@node Indices
+@chapter Indices
+
+@menu
+* Function index::
+* Variable index::
+@end menu
+
+@node Function index
+@section Function index
+
+@printindex fn
+
+@node Variable index
+@section Variable index
+
+@printindex vr
+
+@bye

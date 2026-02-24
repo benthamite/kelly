@@ -23,6 +23,8 @@ The [[https://en.wikipedia.org/wiki/Kelly_criterion][Kelly criterion]] is a form
 
 The package supports five different odds formats commonly used in sports betting and prediction markets: fractional (British), decimal (European), moneyline (American), implied probability, and implied percentage.  It also supports /fractional Kelly/ betting, a widely used risk-reduction strategy in which only a fixed fraction of the full Kelly recommendation is wagered.
 
+The development repository is on [[https://github.com/benthamite/kelly][GitHub]].
+
 * Installation
 :PROPERTIES:
 :CUSTOM_ID: h:installation
