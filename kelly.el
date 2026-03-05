@@ -1,6 +1,6 @@
 ;;; kelly.el --- Elisp Kelly criterion calculator -*- lexical-binding: t -*-
 
-;; Copyright (C) 2025
+;; Copyright (C) 2025-2026 Pablo Stafforini
 
 ;; Author: Pablo Stafforini
 ;; URL: https://github.com/benthamite/kelly
