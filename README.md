@@ -50,7 +50,7 @@ Run `M-x kelly`, enter your estimated win probability (e.g. `0.6`) and the betti
 
 ## Documentation
 
-For a comprehensive description of all user options, commands, and functions, see the [manual](readme.org).
+For a comprehensive description of all user options, commands, and functions, see the [manual](README.org).
 
 ## License
 
