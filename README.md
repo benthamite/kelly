@@ -2,7 +2,19 @@
 
 ## Overview
 
-The [Kelly criterion](https://en.wikipedia.org/wiki/Kelly_criterion) is a formula from probability theory that determines the optimal fraction of a bankroll to wager on a bet with positive expected value. Given the probability of winning and the odds offered, the Kelly formula maximizes the expected logarithm of wealth over repeated bets --- in other words, it is the strategy that produces the highest long-run growth rate.
+The [Kelly criterion](https://en.wikipedia.org/wiki/Kelly_criterion) is a formula from probability theory that determines the optimal fraction of a bankroll to wager on a bet with positive expected value. Given the probability of winning and the odds offered, the Kelly formula maximizes the expected logarithm of wealth over repeated bets.
+
+<img src="kelly.png" align="right" width="300">
+
+<blockquote>When I deployed my card counting system for blackjack, it made intuitive sense to bet more when the expected gain, or edge, was greater. The question was, how much? The answer was in a 1956 article by Bell Labs physicist John L. Kelly, who some said was the smartest person there, after Claude Shannon.
+
+— Ed Thorp, *A Man for All Markets*</blockquote>
+
+The formula is:
+
+$$f^* = p - \frac{1 - p}{b}$$
+
+where $p$ is the probability of winning, $b$ is the net odds received on the bet (e.g. 2 for 2:1 fractional odds), and $f^*$ is the fraction of the bankroll to wager.
 
 `kelly` brings this calculation into Emacs. The package provides a single interactive command, `kelly`, which prompts for the win probability and the betting odds, then displays the recommended wager amount along with the expected net profit. All computation is done in the minibuffer: no external dependencies, no buffers, no files.
 
