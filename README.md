@@ -16,7 +16,7 @@ $$f^* = p - \frac{1 - p}{b}$$
 
 where $p$ is the probability of winning, $b$ is the net odds received on the bet (e.g. 2 for 2:1 fractional odds), and $f^*$ is the fraction of the bankroll to wager.
 
-`kelly` brings this calculation into Emacs. The package provides a single interactive command, `kelly`, which prompts for the win probability and the betting odds, then displays the recommended wager amount along with the expected net profit. All computation is done in the minibuffer: no external dependencies, no buffers, no files.
+`kelly` brings this calculation into Emacs. The package provides a single interactive command, `kelly`, which prompts for the win probability and the betting odds, then displays the recommended wager amount along with the expected net profit. All computation is done in the minibuffer.
 
 Five odds formats are supported: fractional (British), decimal (European), moneyline (American), implied probability, and implied percentage. The package also supports *fractional Kelly* betting, a widely used risk-reduction strategy in which only a fixed fraction of the full Kelly recommendation is wagered.
 
