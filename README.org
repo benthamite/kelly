@@ -260,6 +260,33 @@ Each odds format has a dedicated reader function that prompts the user for input
 
 All reader functions validate their input in a loop, re-prompting if the entered value is out of range.  The appropriate reader is selected automatically by ~kelly-read-b~ based on the value of ~kelly-b-parameter-format~ ([[#h:odds-format][Odds format]]).
 
+* Testing
+:PROPERTIES:
+:CUSTOM_ID: h:testing
+:END:
+
+The package includes a comprehensive ERT test suite in =kelly-test.el= covering the core calculation, expectation, wager sizing, odds conversions, dispatch logic, and integration scenarios.  A =Makefile= provides convenient targets for running the suite.
+
+** Running tests locally
+:PROPERTIES:
+:CUSTOM_ID: h:running-tests-locally
+:END:
+
+From the repository root:
+
+#+begin_src shell
+make test      # run the ERT test suite
+make compile   # byte-compile with warnings as errors
+make clean     # remove .elc files
+#+end_src
+
+** Continuous integration
+:PROPERTIES:
+:CUSTOM_ID: h:continuous-integration
+:END:
+
+A GitHub Actions workflow (=.github/workflows/test.yml=) runs byte-compilation and the test suite on every push and pull request against the =main= branch.  The workflow tests against Emacs 27.1, 29.4, and 30.1.
+
 * Indices
 :PROPERTIES:
 :CUSTOM_ID: h:indices
