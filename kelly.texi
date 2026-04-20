@@ -4,6 +4,7 @@
 @settitle kelly: Kelly criterion calculator for Emacs
 @documentencoding UTF-8
 @documentlanguage en
+@c AUTO-GENERATED from README.org via ox-texinfo — do not edit manually.
 @c %**end of header
 
 @dircategory Emacs misc features
@@ -34,6 +35,7 @@ This manual describes the features and customization options for the Emacs Lisp 
 * User options::
 * Commands::
 * Functions::
+* Testing::
 * Indices::
 
 @detailmenu
@@ -60,6 +62,11 @@ Functions
 * Expected value and wager sizing::
 * Bankroll management::
 * Odds conversion::
+
+Testing
+
+* Running tests locally::
+* Continuous integration::
 
 Indices
 
@@ -164,7 +171,7 @@ The choice of format is purely a matter of convenience; all formats are converte
 
 @lisp
 ;; Use decimal (European) odds
-(setq kelly-b-parameter-format 'decimal-odds)
+(setopt kelly-b-parameter-format 'decimal-odds)
 @end lisp
 
 @node Fractional Kelly
@@ -177,7 +184,7 @@ In practice, the full Kelly criterion can lead to large swings in bankroll size,
 
 @lisp
 ;; Use half Kelly for a more conservative strategy
-(setq kelly-fraction 0.5)
+(setopt kelly-fraction 0.5)
 @end lisp
 
 The value must be a positive number.  If it is zero, negative, or not a number, @code{kelly-calculate} signals an error (@ref{Core calculation}).
@@ -191,14 +198,14 @@ The user option @code{kelly-bankroll} specifies the total amount of capital avai
 The default value is @code{nil}.  When @code{nil}, the @code{kelly} command prompts for a bankroll amount on the first invocation and stores the entered value in this variable for subsequent calls within the same session.  If you want to avoid the prompt, set it in your init file:
 
 @lisp
-(setq kelly-bankroll 10000)
+(setopt kelly-bankroll 10000)
 @end lisp
 
 @vindex kelly-bankroll-currency
 The user option @code{kelly-bankroll-currency} specifies the currency symbol displayed alongside monetary amounts in the output.  The default value is @samp{"$"}.  Change it to match your local currency:
 
 @lisp
-(setq kelly-bankroll-currency "EUR")
+(setopt kelly-bankroll-currency "EUR")
 @end lisp
 
 @node Commands
@@ -249,7 +256,7 @@ Here is an example session using the default settings (fractional odds, full Kel
 The output might read:
 
 @example
-Amount to wager: $400.00 (40.00% of bankroll). Expected net profit: $160.00 (40.00% return on investment).
+Amount to wager: $400.00 (40.00% of bankroll). Expected net profit: $320.00 (80.00% return on investment).
 @end example
 
 @node Functions
@@ -271,10 +278,6 @@ The following public functions are available for programmatic use.  They allow y
 The function @code{kelly-calculate} takes two arguments: a win probability @emph{p} (a number between 0 and 1) and net fractional odds @emph{b} (a positive number).  It returns the Kelly fraction scaled by @code{kelly-fraction} (@ref{Fractional Kelly}).
 
 The underlying formula is:
-
-@example
-f = ((b + 1) * p - 1) / b
-@end example
 
 The function validates its inputs: it signals an error if @emph{b} is zero (which would cause division by zero) or if @code{kelly-fraction} is not a positive number.
 
@@ -303,7 +306,7 @@ The function @code{kelly-get-bankroll} returns the current value of @code{kelly-
 The function @code{kelly-read-bankroll} prompts interactively for a positive bankroll amount without modifying any global variable.  It can be called directly if you want to update the bankroll mid-session:
 
 @lisp
-(setq kelly-bankroll (kelly-read-bankroll))
+(setopt kelly-bankroll (kelly-read-bankroll))
 @end lisp
 
 @node Odds conversion
@@ -330,6 +333,32 @@ Each odds format has a dedicated reader function that prompts the user for input
 @end itemize
 
 All reader functions validate their input in a loop, re-prompting if the entered value is out of range.  The appropriate reader is selected automatically by @code{kelly-read-b} based on the value of @code{kelly-b-parameter-format} (@ref{Odds format}).
+
+@node Testing
+@chapter Testing
+
+The package includes a comprehensive ERT test suite in @samp{kelly-test.el} covering the core calculation, expectation, wager sizing, odds conversions, dispatch logic, and integration scenarios.  A @samp{Makefile} provides convenient targets for running the suite.
+
+@menu
+* Running tests locally::
+* Continuous integration::
+@end menu
+
+@node Running tests locally
+@section Running tests locally
+
+From the repository root:
+
+@example
+make test      # run the ERT test suite
+make compile   # byte-compile with warnings as errors
+make clean     # remove .elc files
+@end example
+
+@node Continuous integration
+@section Continuous integration
+
+A GitHub Actions workflow (@samp{.github/workflows/test.yml}) runs byte-compilation and the test suite on every push and pull request against the @samp{main} branch.  The workflow tests against Emacs 27.1, 29.4, and 30.1.
 
 @node Indices
 @chapter Indices
